@@ -1,4 +1,4 @@
-#pip install -U python-dotenv
+import sys#pip install -U python-dotenv
 import apifacebook
 import os
 from dotenv import load_dotenv
