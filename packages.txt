@@ -1,9 +1,6 @@
 apt-transport-https
 curl
-mssql-server
-mssql-tools
 unixodbc 
 unixodbc-dev
 python-pyodbc
 libsqliteodbc
-msodbcsql17
