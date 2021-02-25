@@ -1,4 +1,4 @@
-python==3.8
+python==3.7
 pandas
 python-pyodbc
 streamlit==0.71.0
