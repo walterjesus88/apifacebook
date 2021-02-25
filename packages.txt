@@ -3,4 +3,4 @@ curl
 unixodbc 
 unixodbc-dev
 libsqliteodbc
-msodbcsql17 
+mssql-tools 
