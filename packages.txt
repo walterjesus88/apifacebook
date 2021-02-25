@@ -1,1 +1,1 @@
- unixodbc-dev
+mssql-tools unixodbc-dev -y
