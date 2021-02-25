@@ -18,7 +18,7 @@ from collections import defaultdict
 from pandas import ExcelWriter
 #from pandas.io.json import json_normalize
 from pandas import json_normalize
-from pyodbc import pyodbc
+import pyodbc
 import numpy as np
 import time
 import datetime
