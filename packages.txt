@@ -5,3 +5,4 @@ unixodbc
 unixodbc-dev
 python-pyodbc
 libsqliteodbc
+msodbcsql17
