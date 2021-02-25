@@ -2,5 +2,4 @@ apt-transport-https
 curl
 unixodbc 
 unixodbc-dev
-python-pyodbc
 libsqliteodbc
