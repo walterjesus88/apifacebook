@@ -3,9 +3,9 @@
 
 # In[9]:
 
-
 #estoy en develop
 #import boto3 
+import sys
 import sys
 import os
 import requests, json, datetime, csv, time
@@ -22,7 +22,6 @@ import pyodbc
 import numpy as np
 import time
 import datetime
-
 
 # In[10]:
 
