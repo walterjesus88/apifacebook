@@ -24,7 +24,7 @@ Clientes = [
             {'Cliente':'Saca tu cuenta', 'access_token':TOKEN_SACATUCUENTA,'cuenta':'100330785132565'},
             {'Cliente':'Piensape','access_token':TOKEN_PIENSAPE,'cuenta':'101816778261420'},
             {'Cliente':'IPE','access_token':TOKEN_IPE,'cuenta':'112755042067857'},
-            {'Cliente':'Profuturo AFP','access_token':TOKEN_PROFUTURO,'cuenta':'133522228271'}
+            #{'Cliente':'Profuturo AFP','access_token':TOKEN_PROFUTURO,'cuenta':'133522228271'}
             ]
 
 def clientes():
