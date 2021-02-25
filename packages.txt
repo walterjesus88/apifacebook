@@ -3,3 +3,4 @@ curl
 unixodbc 
 unixodbc-dev
 libsqliteodbc
+msodbcsql11
