@@ -37,37 +37,26 @@ conn = pyodbc.connect(
 )
 
 
-# In[11]:
-
-
-# pd.options.mode.chained_assignment = None
-
-#conn = pyodbc.connect(	
-# 	'Driver={SQL Server Native Client 11.0};'
-# 	                      'Server=119.8.153.140;'
-# 	                      'Database=IPE.DW;'
-# 	                      'Trusted_Connection=no;'
-# 	                      'uid=UserData;'
-#                           'pwd=1P32020'
-#                          )
-
-
-# In[12]:
+# conn = pyodbc.connect(	
+#  	'Driver={SQL Server Native Client 11.0};'
+#  	                      'Server=119.8.153.140;'
+#  	                      'Database=IPE.DW;'
+#  	                      'Trusted_Connection=no;'
+#  	                      'uid=UserData;'
+#                            'pwd=1P32020'
+#                           )
 
 
 
-
-
-# In[84]:
 #ayer = datetime.date(2020,5,1)
 #ahora = datetime.date(2020,11,30)
 #print(ayer)
 #print(ahora)
 
-ahora = datetime.datetime.utcnow() - datetime.timedelta(days=2)
+ahora = datetime.datetime.utcnow() - datetime.timedelta(days=4)
 print(ahora)
 
-ayer = ahora - datetime.timedelta(days=1)
+ayer = ahora - datetime.timedelta(days=2)
 print(ayer.date())
 
 unixtime1 = time.mktime(ayer.date().timetuple())
@@ -81,13 +70,125 @@ print(unixtime2)
 
 
 
+import json
+from dateutil.parser import parse
+from pathlib import Path  # Python 3.6+ only
+env_path = Path('.') / 'data.json'
 
 class ApiFacebook:
     def __init__(self, cliente, access, cuenta):
         self.cliente = cliente
         self.access = access  
         self.cuenta = cuenta
-    
+
+    def get_inbox(self):
+        Cliente = self.cliente
+        access_token=self.access
+        cuenta = self.cuenta
+
+        base='https://graph.facebook.com/v8.0/'
+
+        # url=base+cuenta+'/conversations?fields=link,messages{created_time,message,id}&access_token=' + str(access_token)
+
+        url=base+cuenta+'/conversations?fields=message_count,updated_time,link,name,messages.limit(60){created_time,message,from,attachments},subject,participants&access_token='+ str(access_token)
+        #print(url)
+        request = requests.get(url).json()
+
+        if 'data' in request:
+
+            data = requests.get(url).json()
+
+            print('llego aki data')  
+
+            inbox = []
+            message = []
+          
+
+            cursor = conn.cursor() 
+
+            try:
+                conn.autocommit = False
+                a = 1
+                while(True):
+                    try:
+                        for datos in data['data']:
+                    
+               
+                            print(datos)
+                            #if datos['id']=='t_10221571468668041':
+                            part = []
+                            print('--------------> si')
+                            for p in datos['participants']['data']:
+                                if p['name'] != 'Profuturo AFP':
+                                    print(p['name'])
+                                    part.append({'name':p['name'],'email':p['email'],'id':p['id']})
+                            
+
+                            dt = parse(datos['updated_time']) - datetime.timedelta(hours=5)                     
+
+
+                            try:
+                                cursor.execute("INSERT INTO [IPE.DW].[dbo].[Informe_Facebook_inbox] (id,message_count,fecha,hora,link,participants_id,participants_name,participants_email) VALUES(?,?,?,?,?,?,?,?)",
+                                    datos['id'],datos['message_count'],dt.date(),dt.time(),datos['link'],part[0]['id'],part[0]['name'],part[0]['email'])
+                            except Exception as e:
+                                print('se esta actualizando los mensajes')                            
+                                cursor.execute("UPDATE [IPE.DW].[dbo].[Informe_Facebook_inbox] SET message_count = ?,fecha=?,hora=? WHERE id = ?", datos['message_count'],dt.date(),dt.time(),datos['id'])
+
+
+                            i =0
+                            for msg in datos['messages']['data']:
+                                print(i) 
+                                i=i+1;
+
+                                multimedia = []
+                                im=''
+
+                                if 'attachments' in msg:    
+                                    #print(msg['attachments'])
+                                    for m in msg['attachments']['data']:   
+                                        print(m)
+                                        #print(m['image_data'])
+                                        if 'image_data' in m:
+                                            #print
+                                            multimedia.append({'url':m['image_data']['url']})
+                                        elif 'video_data' in m:
+                                            multimedia.append({'url':m['video_data']['url']})
+
+
+                                if multimedia==[]:
+                                    im = ''  
+                                else:
+                                    im=multimedia[0]['url']
+                                print(im)
+                                dt_created = parse(msg['created_time']) - datetime.timedelta(hours=5)
+                             
+                                try:
+                                    cursor.execute("INSERT INTO [IPE.DW].[dbo].[Informe_Facebook_message] (id,created_time,fecha,hora,attachments,message,from_id,from_name,from_email,inbox_id) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                                            msg['id'],msg['created_time'],dt_created.date(),dt_created.time(),im,msg['message'],msg['from']['id'],msg['from']['name'],msg['from']['email'],datos['id'])
+                                except Exception as e:
+                                    print('ya existe ese mensaje')
+                                    print(e)
+                        
+                        time.sleep(1)
+                        url = data['paging']['next'].encode('utf-8')              
+                        print('url    ---------->')
+                        print(url)
+                        data = requests.get(url).json()
+                        a+=1
+                    except KeyError:                  
+                        break
+            except pyodbc.DatabaseError as err:
+                conn.rollback()
+            else:
+                conn.commit()
+            finally:
+                conn.autocommit = True        
+            cursor.close()
+
+            print('termino esta -------------> carga ')
+        
+
+
     def get_procesar(self):
 
         Cliente = self.cliente
@@ -109,8 +210,6 @@ class ApiFacebook:
             print('exists post')            
         
             data = requests.get(url).json()['posts']
-            print('data///////////')
-            print(data)        
 
             post = []
             comentarios = []
@@ -244,35 +343,38 @@ class ApiFacebook:
                 #graph.facebook.com/3771930046172217_3780537211978167?fields=from{name,id,username,link}
 
                 comentarios =[]
-
+                requests_comments = requests.get(url_comments).json()
                 print(url_comments)
-                try:
-                    data2 = requests.get(url_comments).json()['comments']
-             
-                except KeyError:
-                    continue
-                a = 1
-                while(True):
+
+                if 'comments' in requests_comments:
+
                     try:
-                        for datos in data2['data']:
-                            comentarios.append(datos)
-                        #print(comentarios)
-                        #print(Conversations)
-                        # Attempt to make a request to the next page of data, if it exists.
-                        #print(data['conversations']['paging']['next'])
-                        #time.sleep(1)
-
-                        url = data2['paging']['next'].encode('utf-8')
-                    # print(url)
-
-                        data2 = requests.get(url).json()
-                        #print(data)
-                        a+=1
+                        data2 = requests.get(url_comments).json()['comments']
+                 
                     except KeyError:
-                        # When there are no more pages (['paging']['next']), break from the
-                        # loop and end the script.
-                        break
-                    print(a)
+                        continue
+                    a = 1
+                    while(True):
+                        try:
+                            for datos in data2['data']:
+                                comentarios.append(datos)
+                            #print(comentarios)
+                            #print(Conversations)
+                            # Attempt to make a request to the next page of data, if it exists.
+                            #print(data['conversations']['paging']['next'])
+                            #time.sleep(1)
+
+                            url = data2['paging']['next'].encode('utf-8')
+                            # print(url)
+
+                            data2 = requests.get(url).json()
+                            #print(data)
+                            a+=1
+                        except KeyError:
+                            # When there are no more pages (['paging']['next']), break from the
+                            # loop and end the script.
+                            break
+                        print(a)
                 df_comments = pd.concat ([df_comments, pd.DataFrame(json_normalize(comentarios))]) 
 
             print('df_comments --->')
