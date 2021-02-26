@@ -21,10 +21,25 @@ from pandas import json_normalize
 import numpy as np
 import time
 import datetime
-import pyodbc
-
+#import pyodbc
+import urllib
 # In[10]:
 
+from sqlalchemy import create_engine
+
+''' PARAMETROS DE LA CONEXION A SQL '''
+params = urllib.parse.quote_plus(   
+    'Driver={SQL Server Native Client 11.0};'
+                          'Server=201.121.226.150;'
+#                         'Server=DESKTOP-FKSQHGG\MSSQLSERVER2016;'
+                          'Database=GENERAL.BACKUP.PRUEBAS;'
+                          'Trusted_Connection=no;'
+                          'uid=Userdata;'
+                          'pwd=Movistar2020')
+
+db = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+# sql='''SELECT PEDIDO,EMAIL,PRODUCTO,CATEGORIA2 FROM [dbo].[NESTLE_CORRELACIONES]'''
+# MyData = pd.read_sql_query(sql, db)
 
 pd.options.mode.chained_assignment = None
 
@@ -35,17 +50,17 @@ pd.options.mode.chained_assignment = None
 # 	                      'Trusted_Connection=yes;'
 # )
 
-drivers = [item for item in pyodbc.drivers()]
-print(drivers)
-driver = drivers
-print("driver:{}".format(driver))
-server = 'myserver'
-database = 'mydb'
-uid = 'myuser'
-pwd = 'mypass'
-con_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
-print(con_string)
-cnxn = pyodbc.connect(con_string)
+# drivers = [item for item in pyodbc.drivers()]
+# print(drivers)
+# driver = drivers
+# print("driver:{}".format(driver))
+# server = 'myserver'
+# database = 'mydb'
+# uid = 'myuser'
+# pwd = 'mypass'
+# con_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
+# print(con_string)
+# cnxn = pyodbc.connect(con_string)
 
 # conn = pyodbc.connect(	
 #  	'Driver={SQL Server Native Client 11.0};'
