@@ -28,7 +28,7 @@ import urllib
 from sqlalchemy import create_engine
 
 
-pyodbc.connect('Driver={FreeTDS};SERVER='+server+’;DATABASE=’+database+’;UID=’+username+’;PWD=’+password)
+#pyodbc.connect('Driver={FreeTDS};SERVER='+server+’;DATABASE=’+database+’;UID=’+username+’;PWD=’+password)
 
 ''' PARAMETROS DE LA CONEXION A SQL '''
 # params = urllib.parse.quote_plus(   
