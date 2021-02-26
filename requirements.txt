@@ -1,3 +1,2 @@
-python==3.8
 streamlit==0.72.0
 pyodbc==4.0.30
