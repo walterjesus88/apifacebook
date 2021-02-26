@@ -1,2 +1,2 @@
 streamlit==0.72.0
-pyodbc==4.0.30
+pyodbc
