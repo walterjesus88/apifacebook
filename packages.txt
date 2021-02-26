@@ -1,6 +1,4 @@
 apt-transport-https
 curl
 unixodbc 
-unixodbc-dev
-libsqliteodbc
-mssql-tools 
+unixodbc-dev 
