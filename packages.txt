@@ -1,4 +1,4 @@
-msodbcsql17
+mssql
 unixodbc-dev
 odbcinst1debian2
 unixodbc-bin
