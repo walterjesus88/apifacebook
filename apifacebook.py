@@ -30,16 +30,18 @@ from sqlalchemy import create_engine
 ''' PARAMETROS DE LA CONEXION A SQL '''
 params = urllib.parse.quote_plus(   
     'Driver={SQL Server Native Client 11.0};'
-                          'Server=201.121.226.150;'
-#                         'Server=DESKTOP-FKSQHGG\MSSQLSERVER2016;'
-                          'Database=GENERAL.BACKUP.PRUEBAS;'
-                          'Trusted_Connection=no;'
-                          'uid=Userdata;'
-                          'pwd=Movistar2020')
+                        'Server=119.8.153.140;'
+                        'Database=IPE.DW;'
+                        'Trusted_Connection=no;'
+                        'uid=UserData;'
+                        'pwd=1P32020'     
+                         )
 
-db = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+conn = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 # sql='''SELECT PEDIDO,EMAIL,PRODUCTO,CATEGORIA2 FROM [dbo].[NESTLE_CORRELACIONES]'''
 # MyData = pd.read_sql_query(sql, db)
+
+print(conn)
 
 pd.options.mode.chained_assignment = None
 
