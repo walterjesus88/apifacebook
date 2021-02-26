@@ -18,7 +18,7 @@ from collections import defaultdict
 from pandas import ExcelWriter
 #from pandas.io.json import json_normalize
 from pandas import json_normalize
-import pyodbc
+#import pyodbc
 import numpy as np
 import time
 import datetime
@@ -35,17 +35,17 @@ pd.options.mode.chained_assignment = None
 # 	                      'Trusted_Connection=yes;'
 # )
 
-drivers = [item for item in pyodbc.drivers()]
-print(drivers)
-driver = drivers
-print("driver:{}".format(driver))
-server = 'myserver'
-database = 'mydb'
-uid = 'myuser'
-pwd = 'mypass'
-con_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
-print(con_string)
-cnxn = pyodbc.connect(con_string)
+# drivers = [item for item in pyodbc.drivers()]
+# print(drivers)
+# driver = drivers
+# print("driver:{}".format(driver))
+# server = 'myserver'
+# database = 'mydb'
+# uid = 'myuser'
+# pwd = 'mypass'
+# con_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={uid};PWD={pwd}'
+# print(con_string)
+# cnxn = pyodbc.connect(con_string)
 
 # conn = pyodbc.connect(	
 #  	'Driver={SQL Server Native Client 11.0};'
