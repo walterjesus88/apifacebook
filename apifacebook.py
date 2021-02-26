@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 
 ''' PARAMETROS DE LA CONEXION A SQL '''
 params = urllib.parse.quote_plus(   
-    'Driver={SQL Server Native Client 11.0};'
+    'Driver={SQL Server Native Client 17.0};'
                         'Server=119.8.153.140;'
                         'Database=IPE.DW;'
                         'Trusted_Connection=no;'
