@@ -37,7 +37,8 @@ pd.options.mode.chained_assignment = None
 
 
 conn = pyodbc.connect(	
- 	'Driver={SQL Server Native Client 11.0};'
+ 	#'Driver={SQL Server Native Client 11.0};'
+    'Driver={ODBC Driver 17 for SQL Server};'
  	                      'Server=119.8.153.140;'
  	                      'Database=IPE.DW;'
  	                      'Trusted_Connection=no;'
