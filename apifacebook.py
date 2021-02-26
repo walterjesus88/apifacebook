@@ -37,7 +37,7 @@ pd.options.mode.chained_assignment = None
 
 drivers = [item for item in pyodbc.drivers()]
 print(drivers)
-driver = drivers[0]
+driver = drivers
 print("driver:{}".format(driver))
 server = 'myserver'
 database = 'mydb'
