@@ -1,4 +1,5 @@
 apt-transport-https
 curl
 unixodbc 
-unixodbc-dev 
+unixodbc-dev
+mssql-server 
