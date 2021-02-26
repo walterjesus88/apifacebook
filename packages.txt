@@ -3,4 +3,3 @@ curl
 unixodbc 
 unixodbc-dev
 mssql-server
-mssql-tools 
