@@ -1,3 +1,2 @@
 gcc
 unixodbc-dev
-msodbcsql17

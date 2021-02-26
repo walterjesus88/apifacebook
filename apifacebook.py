@@ -27,21 +27,24 @@ import urllib
 
 from sqlalchemy import create_engine
 
-''' PARAMETROS DE LA CONEXION A SQL '''
-params = urllib.parse.quote_plus(   
-    'Driver={SQL Server Native Client 17.0};'
-                        'Server=119.8.153.140;'
-                        'Database=IPE.DW;'
-                        'Trusted_Connection=no;'
-                        'uid=UserData;'
-                        'pwd=1P32020'     
-                         )
 
-conn = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+pyodbc.connect('Driver={FreeTDS};SERVER='+server+’;DATABASE=’+database+’;UID=’+username+’;PWD=’+password)
+
+''' PARAMETROS DE LA CONEXION A SQL '''
+# params = urllib.parse.quote_plus(   
+#     'Driver={SQL Server Native Client 17.0};'
+#                         'Server=119.8.153.140;'
+#                         'Database=IPE.DW;'
+#                         'Trusted_Connection=no;'
+#                         'uid=UserData;'
+#                         'pwd=1P32020'     
+#                          )
+
+#conn = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 # sql='''SELECT PEDIDO,EMAIL,PRODUCTO,CATEGORIA2 FROM [dbo].[NESTLE_CORRELACIONES]'''
 # MyData = pd.read_sql_query(sql, db)
 
-print(conn)
+#print(conn)
 
 pd.options.mode.chained_assignment = None
 
@@ -64,14 +67,14 @@ pd.options.mode.chained_assignment = None
 # print(con_string)
 # cnxn = pyodbc.connect(con_string)
 
-# conn = pyodbc.connect(	
-#  	'Driver={SQL Server Native Client 11.0};'
-#  	                      'Server=119.8.153.140;'
-#  	                      'Database=IPE.DW;'
-#  	                      'Trusted_Connection=no;'
-#  	                      'uid=UserData;'
-#                            'pwd=1P32020'
-#                           )
+conn = pyodbc.connect(	
+ 	'Driver={FreeTDS};'
+ 	                      'Server=119.8.153.140;'
+ 	                      'Database=IPE.DW;'
+ 	                      'Trusted_Connection=no;'
+ 	                      'uid=UserData;'
+                           'pwd=1P32020'
+                          )
 
 
 
