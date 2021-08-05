@@ -41,6 +41,16 @@ def inbox():
             res = calldata.get_inbox()
             st.write('Result Profuturo Completado: %s' % res)
 
+def sentiment():
+    calldata = apifacebook.ApiFacebook()
+    res = calldata.sentiment()
+    st.write('Result Sentiment Completado: %s' % res)
+
+def stopwords():
+    calldata = apifacebook.ApiFacebook()
+    res = calldata.stop_words()
+    st.write('Result stopwords Completado: %s' % res)
+
 #for i in Clientes:
 #	cl = clientes(i)
 
@@ -58,6 +68,10 @@ if st.button('Ejecutar ApiFacebook'):
     cl =clientes()
     st.write('ha terminado de ejecutar el ApiFacebook')
 
-if st.button('Ejecutar inbox Profuturo'):
-    cl =inbox()
-    st.write('ha terminado downloand inbox Profuturo')
+if st.button('Ejecutar Sentiment'):
+    cl =sentiment()
+    st.write('ha terminado ejecutar sentiment ipe')
+
+if st.button('Limpiar Coments'):
+    cl =stopwords()
+    st.write('ha terminado limpiar comentarios ipe')

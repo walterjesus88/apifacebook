@@ -1,0 +1,54 @@
+
+
+#url_comments=base+post[1]['id']+'?fields=comments{id,created_time,from,like_count,message}&access_token=' + str(access_token)
+#print(url_comments)
+
+
+# In[ ]:
+
+
+#pd.read_sql("SELECT * FROM %s" % table_name, conn)
+#created_time	picture	shares	subscribed	message	comments	likes	story	story_tags
+
+
+# In[47]:
+
+
+#history_facebook_post = pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_post] where Cliente = '%s' and convert(date,[Fecha]) BETWEEN '%s' AND '%s'" %(Cliente,dateTime_ini,dateTime_fin),conn)
+#history_reply_comments = pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_reply_comments] where Cliente = '%s' " % Cliente,conn)
+
+
+# In[ ]:
+
+
+#Cliente= input('Escriba el cliente Comex o Saca tu cuenta o Piensape')
+#if Cliente=='Comex':
+#    print('comex')
+#    access_token='EAAFLWQphDb4BACPjUReLZB3TtW6Lyz41v3BArzZBNbj2rmzWODiiIAiRar53ljgFdP5Qe0N7aq6xwQZCnyZAt3saj61FrtDOmnP2C6SKc25zm9QlXqhhovzqu2sZCyGaSxrzdqTVcW5s9pTQnmbPmEWO37G3gf0MZByNbASerLqwZDZD'
+#    cuenta='141796229342716'
+#elif Cliente=='Saca tu cuenta':
+#    print('saca')
+#    access_token='EAAFLWQphDb4BAHRDWqZBOxUrojxcZAfHZBPIJMz9n6ddqj580c0ORh8q9aNBijajL9tmVoITQ6qXiyawZC36z9InUDeuZCq1KMkhb4HeOORIe3hnDMwfN4ZCBz1Jzq7EMQtaXqyvwZAM5XED8AHAziUAU4f1eTMyXu63t94LJg0uwZDZD'
+#    cuenta='100330785132565'
+#elif Cliente=='Piensape':
+#    print('piensape')
+#    access_token='EAAFLWQphDb4BAAZCOP6T4PeL4mbYgjxfCwO3Vy9lNLExvOXulgsZB1Oh2i56JUEslp3i6bYAMgyHY57bZCq7oFIsdUsA1ObkZBXb6cbpy9C9NZCbl0GmoaglSzwqKcrhP5U896tQEZBDdflKH4J5G8R0eqzqxBnUjmw6EoQ0qiswZDZD'
+#    cuenta='101816778261420'
+#else:
+#    print('Escribe Comex, Piensape o Saca tu cuenta correctamente')
+#    exit()
+
+#Fecha_ini = input("Escribe la fecha de inicio")
+#Fecha_fin = input("Escribe la Fecha Fin")
+#dateTime = datetime.date(2020,10,27)
+#import dateutil.parser
+#dateTime_ini = datetime.date(2020,11,1)
+#dateTime_fin = datetime.date(2021,12,31)
+
+#today = date.today()
+#datetime.date.today()
+#print(dateTime_ini)
+
+# dd/mm/YY
+#ahora = today.strftime("%Y-%m-%d")
+#print("d1 =", ahora)

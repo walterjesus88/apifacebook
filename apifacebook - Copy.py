@@ -135,15 +135,12 @@ def save_cursor(df,q,c):
 
     except pyodbc.DatabaseError as err:
         conn.rollback()
-        status=0
     else:
-        conn.commit()
-        status=1
+        conn.commit()                
     finally:
         conn.autocommit = True
                       
     cursor.close()
-    return status
 
 class ApiFacebook:
     def __init__(self, cliente=None, access=None, cuenta=None):
@@ -248,16 +245,25 @@ class ApiFacebook:
         Cliente = self.cliente
         access_token=self.access
         cuenta = self.cuenta
+
         base='https://graph.facebook.com/v8.0/'
+        #access_token='EAAFLWQphDb4BAOfw4GP5Ol3ZCvL407twiKC5Edd4ugs8mhoM7kAv7Ma0HI10fSTCLrEZBEm1KHJZAvVfc6I8usXNqmhYKlcKMeBT7pEYXvtaGYgy7SYEYvNQO0svOIbZA9BgpOLK4p4iXfPRONiuyl2uF5SxxZCz9AoZBXKZACtuwZDZD'
+        #url=base+cuenta+'conversations?fields=messages.limit(100){message,created_time,from}&limit=500&access_token=' + str(access_token)
+        #url=base+cuenta+'?fields=posts{likes.summary(true),created_time,id,from,is_popular,is_published,picture,shares,story,story_tags,subscribed,message,comments{id,created_time,from,like_count,message,comments{id,from,created_time,like_count,message}}}&access_token=' + str(access_token)
         url=base+cuenta+'?fields=posts.since('+str(unixtime1)+').until('+str(unixtime2)+'){status_type,created_time,id,from,is_popular,is_published,picture,shares.limit(0).summary(true),story,story_tags,subscribed,permalink_url,message,comments.limit(0).summary(true),likes.limit(0).summary(true),full_picture,reactions.limit(0).summary(true)}&access_token=' + str(access_token)
 
+        print('access_token')
         print(url)
+        # return access_token
         request = requests.get(url).json()
         post_status=False
         if 'posts' in request:
+            print('exists post')            
+        
             data = requests.get(url).json()['posts']
             post = []
             comentarios = []
+
             a = 1
             while(True):
                 try:
@@ -266,7 +272,9 @@ class ApiFacebook:
                         # Attempt to make a request to the next page of data, if it exists.
                     #print(data['conversations']['paging']['next'])
                     #time.sleep(1)
-                    url = data['paging']['next'].encode('utf-8')                    
+
+                    url = data['paging']['next'].encode('utf-8')
+                    
                     print(url)
                     data = requests.get(url).json()
                     #print(data)
@@ -278,9 +286,16 @@ class ApiFacebook:
                 #print(a)
 
             df_facebok_post = pd.DataFrame(post)
+
+            history_facebook_post = pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_post] where Cliente = '%s' and convert(date,[Fecha]) BETWEEN '%s' AND '%s'" %(Cliente,ayer,ahora),conn)
+            #                                    and Fecha Between " % Cliente,conn)
+            #history_facebook_post.shape
+
             df_facebok_post['id'] = df_facebok_post.id.apply(lambda x: x if not pd.isnull(x) else 0)
             df_facebok_post['from'] = df_facebok_post['from'].apply(lambda x: x if not pd.isnull(x) else '')
             df_facebok_post['message'] = df_facebok_post.message.apply(lambda x: x if not pd.isnull(x) else '')
+            #df_facebok_post['story'] = df_facebok_post.story.apply(lambda x: x if not pd.isnull(x) else '')
+            #df_facebok_post['story_tags'] = df_facebok_post.story_tags.apply(lambda x: x if not pd.isnull(x) else '')
             df_facebok_post['permalink_url'] = df_facebok_post.permalink_url.apply(lambda x: x if not pd.isnull(x) else '')
             df_facebok_post['status_type'] = df_facebok_post.status_type.apply(lambda x: x if not pd.isnull(x) else '')
             df_facebok_post['full_picture'] = df_facebok_post.full_picture.apply(lambda x: x if not pd.isnull(x) else '')
@@ -321,15 +336,45 @@ class ApiFacebook:
             df_facebok_post['Hora'] = pd.to_datetime(df_facebok_post['Fecha_resta']).dt.time
             df_facebok_post['Hora'] = df_facebok_post['Hora'].apply(str)
 
+            #df_facebok_post['z'] = pd.to_datetime(df_facebok_post['created_time'])
+            #df_facebok_post['Hora'] = df_facebok_post['z'].dt.tz_convert('US/Central').dt.time
+            #df_facebok_post['Hora'] = pd.to_datetime(df_facebok_post['Hora'], format='%H:%M:%S').dt.time
+            #df_facebok_post['sa'].dt.tz_convert('US/Pacific')
+            #df_facebok_post['sa'] = pd.to_datetime(df_facebok_post['sa'], format='%H:%M:%S')
+
             df_facebok_post.isnull().sum()
             df_facebok_post.dtypes
             #Sirve para insertar datos en la tabla FACEBOOK_POST
             currDate = datetime.datetime.now()
 
-            #Insertar en Post   
-            c=0        
-            rp = save_cursor(df_facebok_post,q='post',c=Cliente) 
-            c = c+rp
+            #Insertar en Post
+           
+            save_cursor(df_facebok_post,q='post',c=Cliente)
+            # cursor = conn.cursor()  
+            # try:
+            #     conn.autocommit = False
+            #     for index,row in df_facebok_post.iterrows(): 
+            #         #history_post_exist =  history_facebook_post[(history_facebook_post.cod_postid == row.cod_postid)]
+            #         #if history_post_exist.empty:
+            #         try:
+            #             print(row.cod_postid)
+            #             query_post = "INSERT INTO [IPE.DW].[dbo].[Informe.Facebook_post] (id,cod_postid,Cliente,Mensaje,Valoracion,Medio,Tipo,Followers,Nombre,Categoria1,Categoria2,Categoria3,URL,Reporte,Fecha,Hora,FBShares,Departamento,Distrito,Org,Sexo,Rango_edad,Influencia,Titulo,Tag1,Tag2,Tag3,Tag4,Tag5,UserID,screen_name,friends,created_at,FbLikes,inreplyto,inreplytouserid,inreplytousername,postid,Lat,Lng,ARCHIVO,Flag_Postexterno,full_picture,reactions) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",row.cod_postid,row.cod_postid,Cliente,row.message,'','Facebook',row.status_type,0,row['from']['name'],'','','',row.permalink_url,0,row.Fecha,row.Hora,row['shares']['count'],'','','','','','','','','','','','',row['from']['id'],'','',currDate,row.likes['summary']['total_count'],'','','',row.id,'','','Facebook-Api','1',row.full_picture,row.reactions['summary']['total_count']
+            #             cursor.execute(query_post)
+
+            #         except Exception as e:
+            #             print(e)
+            #         #else:
+            #         #    print(row.cod_postid)
+
+            # except pyodbc.DatabaseError as err:
+            #     conn.rollback()
+            # else:
+            #     conn.commit()
+            #     post_status=True                
+            # finally:
+            #     conn.autocommit = True
+                       
+            # cursor.close()
 
             df_comments = pd.DataFrame(columns=['created_time', 'id', 'like_count', 'message','from','url'])
 
@@ -383,6 +428,10 @@ class ApiFacebook:
                 df_comments['Nombre'] = df_comments['from.name']
                 df_comments['UserID'] = df_comments['from.id']
 
+                #history_facebook_post = pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_post] where Cliente = '%s' and convert(date,[Fecha]) BETWEEN '%s' AND '%s'" %(Cliente,dateTime_ini,dateTime_fin),conn)
+                history_facebook_comments = pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_comments] where Cliente = '%s' " % Cliente,conn)
+                history_facebook_comments.shape
+
                 def cod_comment_id(id):
                     subguion = '_' 
                     index_guion = id.index(subguion)    
@@ -404,10 +453,30 @@ class ApiFacebook:
                 df_comments['Hora'] = pd.to_datetime(df_comments['Fecha_resta']).dt.time
                 df_comments['Hora'] = df_comments['Hora'].apply(str)
 
+                #Insertando en facebook comments 
+                # cursor = conn.cursor()
+                # try:
+                #     conn.autocommit = False
+                #     for index,row in df_comments.iterrows():
+                #         #Comprueba si existe la tabla facebook_comments el row, para evitar conflicto de duplicado
 
-                rc=save_cursor(df_comments,q='comment',c=Cliente)
-                c=c+rc
-                
+                #         try:
+                #             print('vacio ' + str(row.cod_comment_id))
+                #             cursor.execute("INSERT INTO [IPE.DW].[dbo].[Informe.Facebook_comments] (id,cod_comment_id,Cliente,Mensaje,Valoracion,Medio,Tipo,Followers,Nombre,Categoria1,Categoria2,Categoria3,URL,Reporte,Fecha,Hora,FBShares,Departamento,Distrito,Org,Sexo,Rango_edad,Influencia,Titulo,Tag1,Tag2,Tag3,Tag4,Tag5,UserID,screen_name,friends,created_at,FbLikes,inreplyto,inreplytouserid,inreplytousername,postid,Lat,Lng,Archivo,postid_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                #                 row.cod_comment_id,row.cod_comment_id,Cliente,row.message,'','Comment','','',row.Nombre,'','','',row.permalink_url,0,row.Fecha,row.Hora,'0','','','','','','','','','','','','',row.UserID,'','',currDate,row.like_count,'','','',row.id,'','','Facebook-Api',row.cod_postid_comment)
+                #         except Exception as e:
+                #             print(e)
+
+                # except pyodbc.DatabaseError as err:
+                #     conn.rollback()
+                # else:
+                #     conn.commit()
+                #     coment_status=True                    
+                # finally:
+                #     conn.autocommit = True
+                # cursor.close()
+
+                save_cursor(df_comments,q='comment',c=Cliente)
 
                 print('termino comments')
                 df_reply_comments= pd.DataFrame(columns=['created_time', 'id', 'like_count', 'message'])
@@ -418,14 +487,17 @@ class ApiFacebook:
                     print(url_comments)
                     try:
                         data3 = requests.get(url_comments).json()['comments']
+
                     except KeyError:
                         continue
                     a = 1
                     while(True):
                         try:
                             for datos in data3['data']:
+
                                 datos['inreplyto'] = row.id
-                                comentarios.append(datos)
+                                comentarios.append(datos)                
+
                             # Attempt to make a request to the next page of data, if it exists.
                             #print(data['conversations']['paging']['next'])
                             #time.sleep(1)
@@ -437,6 +509,7 @@ class ApiFacebook:
                             # loop and end the script.
                             break
                         print(a)
+
                     df_reply_comments = pd.concat ([df_reply_comments, pd.DataFrame(json_normalize(comentarios))])
 
                 def cod_reply_id(id):    
@@ -451,8 +524,11 @@ class ApiFacebook:
                     index_guion = inreplyto.index(subguion)    
                     longitud= len(inreplyto) 
                     cod_commentid_replycomment=int(inreplyto[index_guion+1:longitud])
+                    print('----------------------------------->',cod_commentid_replycomment)
                     return cod_commentid_replycomment
 
+                print('datos----',df_reply_comments)
+                reply_status=False
                 if not df_reply_comments.empty: 
 
                     df_reply_comments['cod_reply_id'] = df_reply_comments['id'].apply(cod_reply_id)
@@ -462,19 +538,41 @@ class ApiFacebook:
                     df_reply_comments['Fecha']= df_reply_comments['Fecha'].apply(quitar_guion)
                     df_reply_comments['Hora'] = pd.to_datetime(df_reply_comments['Fecha_resta']).dt.time
                     df_reply_comments['Hora'] = df_reply_comments['Hora'].apply(str)
+
                     df_reply_comments['Nombre'] = df_reply_comments['from.name']
                     df_reply_comments['UserID'] = df_reply_comments['from.id']
-                    #Insertando en facebook comments
-                    rr=save_cursor(df_reply_comments,q='reply',c=Cliente)
-                    c=c+rr
-                    print('status re'+str(c))
+                    #Insertando en facebook comments 
+                    # cursor = conn.cursor()
+                    # try:
+                    #     conn.autocommit = False
+                    #     for index,row in df_reply_comments.iterrows():
+                    #             #Comprueba si existe la tabla facebook_comments el row, para evitar conflicto de duplicado
+                    #         print(row.id)
+                    #         try:
+                    #             cursor.execute("INSERT INTO [IPE.DW].[dbo].[Informe.Facebook_reply_comments] (id,cod_reply_id,Cliente,Mensaje,Valoracion,Medio,Tipo,Followers,Nombre,Categoria1,Categoria2,Categoria3,URL,Reporte,Fecha,Hora,FBShares,Departamento,Distrito,Org,Sexo,Rango_edad,Influencia,Titulo,Tag1,Tag2,Tag3,Tag4,Tag5,UserID,screen_name,friends,created_at,FbLikes,inreplyto,inreplytouserid,inreplytousername,postid,Lat,Lng,Archivo,cod_comment_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    #                 row.cod_reply_id,row.cod_reply_id,Cliente,row.message,'','Comment','','',row.Nombre,'','','','https://facebook.com' + str(row.id),0,row.Fecha,row.Hora,'0','','','','','','','','','','','','',row.UserID,'','',currDate,row.like_count,row.inreplyto,'','',row.id,'','','Facebook-Api',row.cod_commentid_replycomment)
+                    #         except Exception as e:
+                    #             print(e)
 
+                    # except pyodbc.DatabaseError as err:
+                    #     conn.rollback()
+                    # else:
+                    #     conn.commit()
+                    #     reply_status=True                        
+                    # finally:
+                    #     conn.autocommit = True
+                    # cursor.close()
+                    save_cursor(df_reply_comments,q='reply',c=Cliente)
         print('termino' + Cliente)
-        #return str('termino  ' + Cliente)
-        if c>=1 and c<=3:
-            status=True
-        return str('termino' + Cliente + str(c)+str(status))
-
+        return str('termino  ' + Cliente)
+        # print(post_status)
+        # print(coment_status)
+        # print(reply_status)
+        # if post_status==True and coment_status==True and reply_status==True:
+        #     status=True
+        # else:
+        #     status=False
+        # return status
 
     def sentiment(self):
         hfacebook_comments =pd.read_sql("select * from [IPE.DW].[dbo].[Informe.Facebook_Comments] WHERE  TextBlobSENTIMENT IS NULL and len(Mensaje)>3 ",conn)      
@@ -518,7 +616,7 @@ class ApiFacebook:
         datosfilter =datosfilter[datosfilter['clean_texto'].str.len()>3]
 
         #REEMPLAZAMOS EL TEXTO
-        #datosfilter['clean_texto'] = datosfilter['clean_texto'].apply(reemplazar)
+        datosfilter['clean_texto'] = datosfilter['clean_texto'].apply(reemplazar)
         print('iniciando la traduccion de comments')
 
         #FUNCION DE POLARIDAD Y TRADUCTOR
